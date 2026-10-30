@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Carnê Claro: controle de carnês e negociação de pagamentos</title>
+<meta name="theme-color" content="#17306B">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2317306B'/%3E%3Ccircle cx='16' cy='16' r='7' fill='none' stroke='%23fff' stroke-width='3' stroke-dasharray='4 3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap">
+<style>
+:root{--ink:#17306B;--paper:#F6F8FC;--line:#D3DBE8;--mute:#516080;--ok:#14794B;--late:#C2362B;--soon:#2A5BD7;--tint:#EDF1F9}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:#1B2440;font:400 16px/1.5 "Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;-webkit-text-size-adjust:100%}
+h2,h3{margin:0;color:var(--ink);letter-spacing:-.02em;line-height:1.2}
+h3{font-size:1.1rem}
+small{display:block;color:var(--mute);font-size:.86rem}
+:focus-visible{outline:3px solid var(--soon);outline-offset:2px}
+.w{max-width:960px;margin:0 auto;padding:0 16px}
+#hd{position:sticky;top:0;z-index:5;background:#fff;border-bottom:2px solid var(--ink)}
+.bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:10px 16px}
+.logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:1.2rem;color:var(--ink)}
+.logo i{width:16px;height:16px;border:3px dashed var(--ok);border-radius:50%}
+.seg{display:flex;border:2px solid var(--ink);border-radius:10px;overflow:hidden}
+.seg button{font:inherit;font-weight:600;border:0;background:#fff;color:var(--ink);padding:7px 14px;cursor:pointer}
+.seg button.on{background:var(--ink);color:#fff}
+select,input,textarea{font:inherit;width:100%;padding:9px 10px;border:1.5px solid var(--line);border-radius:8px;background:#fff;color:inherit}
+#sc{width:auto;max-width:100%}
+label{display:block;font-weight:600;margin-top:12px}
+label.ck{display:flex;gap:8px;align-items:center;font-weight:400;margin-top:6px}
+label.ck input{width:auto}
+main{padding:20px 16px 8px}
+.ti{margin:4px 0 14px;font-size:1.5rem}
+.kp{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:10px;margin-bottom:18px}
+.k{background:#fff;border:2px solid var(--ink);border-radius:12px;padding:12px 14px}
+.k b{display:block;font-size:1.35rem;color:var(--ink);font-variant-numeric:tabular-nums}
+.k b.late,.v.late{color:var(--late)}
+.tabs,.chips,.act{display:flex;flex-wrap:wrap;gap:8px}
+.tabs{margin-bottom:16px;border-bottom:1px solid var(--line);padding-bottom:10px}
+.tabs button,.chips button{font:inherit;font-weight:600;color:var(--ink);background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:7px 14px;cursor:pointer}
+.tabs button.on,.chips button.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.chips{margin:14px 0}
+.act{margin:12px 0 0}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+.r{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:12px 0;border-top:2px dashed var(--line);margin-top:10px}
+.r .g{flex:1 1 170px;min-width:0}
+.r .v,.v{font-variant-numeric:tabular-nums;color:var(--ink);font-weight:700}
+.r0{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.ac{display:flex;flex-wrap:wrap;gap:6px}
+.tag{display:inline-block;padding:1px 10px;border:2px solid currentColor;border-radius:6px;font-weight:700;font-size:.82rem;color:var(--mute);white-space:nowrap}
+.tag.ok{color:var(--ok)}.tag.late{color:var(--late)}.tag.soon{color:var(--soon)}
+.b{font:inherit;font-weight:700;padding:10px 16px;border:2px solid var(--ink);border-radius:10px;background:var(--ink);color:#fff;cursor:pointer}
+.b.o{background:#fff;color:var(--ink)}
+.b.s{padding:5px 11px;font-size:.88rem;border-radius:8px}
+.b.r2{border-color:var(--late);color:var(--late);background:#fff}
+.b:hover{opacity:.88}
+.al{background:#EAF0FF;border-left:4px solid var(--soon);border-radius:8px;padding:10px 14px;margin-bottom:10px}
+.al.late{background:#FDECEA;border-color:var(--late)}
+.al b{display:block}
+.emp{color:var(--mute);padding:18px 0}
+.fm{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:10px;margin-top:10px}
+.fm label{margin-top:0}
+#m{display:none;position:fixed;inset:0;z-index:20;background:rgba(15,25,50,.55);overflow:auto;padding:16px}
+#m.on{display:block}
+.mb{background:#fff;border-radius:14px;max-width:480px;margin:4vh auto;padding:20px}
+#ts{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:10px;z-index:30;display:none;max-width:90vw;text-align:center}
+#ts.on{display:block}
+footer{max-width:960px;margin:0 auto;padding:18px 16px 40px;color:var(--mute);font-size:.88rem;border-top:2px dashed var(--line)}
+footer button{font:inherit;background:none;border:0;color:var(--ink);text-decoration:underline;cursor:pointer;padding:0}
+</style>
+</head>
+<body>
+<header id="hd"></header>
+<main class="w" id="app"></main>
+<footer>Demonstração: os dados ficam salvos só neste navegador e os lembretes são simulados. <button data-a="reset">Restaurar dados de exemplo</button></footer>
+<div id="m"></div><div id="ts" role="status"></div>
+<script>
+var K='cc2',S,V={role:'loja',tab:'carnes',f:'todas',cid:1};
+var L={total:'Negociação total da parcela atrasada',parcial:'Pagamento parcial da parcela',final:'Transferir a parcela para o final do carnê',dividir:'Dividir a parcela em pagamentos menores',varias:'Renegociar várias parcelas'};
+var $=function(s){return document.querySelector(s)};
+function e(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function iso(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
+function addD(s,n){var d=new Date(s+'T12:00:00');d.setDate(d.getDate()+n);return iso(d)}
+function addM(s,n){var d=new Date(s+'T12:00:00');d.setMonth(d.getMonth()+n);return iso(d)}
+var T=iso(new Date());
+function diff(s){return Math.round((new Date(s+'T12:00:00')-new Date(T+'T12:00:00'))/864e5)}
+function fm(v){return'R$\u00a0'+v.toFixed(2).replace('.',',')}
+function fd(s){return s.split('-').reverse().join('/')}
+function g(i,d){var x=$('#'+i);return x?x.value:d}
+function st(p){if(p.paga)return'paga';var d=diff(p.venc);return d<0?'atrasada':d<=5?'breve':'aberta'}
+function tag(p){var s=st(p),t={paga:['ok','Paga'],atrasada:['late','Atrasada'],breve:['soon','Vence em breve'],aberta:['','A vencer']}[s];return'<span class="tag '+t[0]+'">'+t[1]+'</span>'}
+function mk(s,c,item,tot,n,first,paid){var ps=[],b=Math.floor(tot/n*100)/100;for(var i=0;i<n;i++)ps.push({id:++s.u,l:(i+1)+'/'+n,valor:i<n-1?b:+(tot-b*(n-1)).toFixed(2),venc:addM(first,i),paga:i<paid});return{id:++s.u,c:c,item:item,ps:ps}}
+function seed(){var s={c:[{id:1,n:'Ana Souza'},{id:2,n:'Bruno Lima'},{id:3,n:'Carla Mendes'}],k:[],p:[],h:[],u:10};s.k.push(mk(s,1,'Sofá',3000,6,addD(T,-40),1),mk(s,2,'Geladeira',3200,4,addD(T,-25),0),mk(s,3,'Notebook',3000,5,addD(T,3),0));return s}
+function sv(){try{localStorage.setItem(K,JSON.stringify(S))}catch(x){}}
+function nm(c){return S.c.filter(function(x){return x.id==c})[0].n}
+function fp(id){for(var i=0;i<S.k.length;i++)for(var j=0;j<S.k[i].ps.length;j++)if(S.k[i].ps[j].id==id)return S.k[i].ps[j]}
+function fk(id){return S.k.filter(function(k){return k.ps.some(function(p){return p.id==id})})[0]}
+function lg(t){S.h.unshift({d:T,t:t})}
+function sum(f){var t=0;S.k.forEach(function(k){k.ps.forEach(function(p){if(f(p))t+=p.valor})});return t}
+function pend(p){return S.p.some(function(q){return q.e=='pendente'&&q.ps.indexOf(p.id)>-1})}
+function toast(m){var t=$("#ts");t.textContent=m;t.className='on';clearTimeout(toast.h);toast.h=setTimeout(function(){t.className=''},2800)}
+function M(h){$('#m').innerHTML='<div class="mb" role="dialog" aria-modal="true">'+h+'</div>';$('#m').className='on'}
+function closeM(){$('#m').className=''}
+function sh(i,s){$('#'+i).style.display=s?'':'none'}
+function ft(){var t=g('t');sh('fv',t=='parcial');sh('fq',t=='dividir');sh('fs',t=='varias');sh('fd',t!='final')}
+function kp(l,v,c){return'<div class="k"><small>'+l+'</small><b class="'+(c||'')+'">'+v+'</b></div>'}
+function row(p,l){var a='';if(!p.paga){if(l)a='<button class="b s" data-a="paga" data-p="'+p.id+'">Marcar paga</button><button class="b o s" data-a="lem" data-p="'+p.id+'">Lembrete</button>';else a=pend(p)?'<span class="tag soon">Pedido enviado</span>':'<button class="b s" data-a="pedir" data-p="'+p.id+'">Pedir alternativa</button>'}
+return'<div class="r"><div class="g"><b>Parcela '+p.l+'</b><small>Vence em '+fd(p.venc)+(p.pagoParc?'. Já pago: '+fm(p.pagoParc):'')+(p.ac?'<br>Acordo: '+e(p.ac):'')+(l&&p.lem&&!p.paga?'<br>Lembrete enviado':'')+'</small></div><span class="v">'+fm(p.valor)+'</span>'+tag(p)+'<div class="ac">'+a+'</div></div>'}
+function tCarnes(){var h='<div class="act"><button class="b" data-a="novo">Novo carnê</button><button class="b o" data-a="lemall">Enviar lembretes (vencem em até 5 dias)</button></div><div class="chips">',n=0;
+[['todas','Todas'],['atrasada','Atrasadas'],['breve','Vencem em breve'],['paga','Pagas']].forEach(function(f){h+='<button data-a="filt" data-v="'+f[0]+'" class="'+(V.f==f[0]?'on':'')+'">'+f[1]+'</button>'});h+='</div>';
+S.k.forEach(function(k){var rs=k.ps.filter(function(p){return V.f=='todas'||st(p)==V.f});if(!rs.length)return;n++;h+='<div class="card"><h3>'+e(nm(k.c))+'</h3><small>'+e(k.item)+'</small>'+rs.map(function(p){return row(p,1)}).join('')+'</div>'});
+return h+(n?'':'<p class="emp">Nenhuma parcela neste filtro.</p>')}
+function tInad(){var h='';S.c.forEach(function(c){var ps=[];S.k.forEach(function(k){if(k.c==c.id)k.ps.forEach(function(p){if(st(p)=='atrasada')ps.push(p)})});if(!ps.length)return;var t=ps.reduce(function(a,p){return a+p.valor},0),d=Math.max.apply(0,ps.map(function(p){return-diff(p.venc)}));
+h+='<div class="card"><div class="r0"><div><h3>'+e(c.n)+'</h3><small>'+ps.length+' parcela(s) atrasada(s). Maior atraso: '+d+' dia(s)</small></div><b class="v late">'+fm(t)+'</b></div><div class="act"><button class="b s" data-a="lemc" data-c="'+c.id+'">Enviar lembrete</button></div></div>'});
+return h||'<p class="emp">Nenhum cliente com parcelas atrasadas.</p>'}
+function lbl(q){return q.ps.map(function(i){var p=fp(i);return p?p.l:'?'}).join(', ')}
+function tPed(){var h='',pe=S.p.filter(function(q){return q.e=='pendente'}),ok=S.p.filter(function(q){return q.e!='pendente'});
+pe.forEach(function(q){var i=q.id,k=S.k.filter(function(k){return k.id==q.kid})[0];
+h+='<div class="card"><h3>'+e(nm(q.c))+'</h3><small>'+e(k.item)+'. Parcela(s) '+lbl(q)+'</small><p><b>'+L[q.t]+'</b>'+(q.msg?'<br>“'+e(q.msg)+'”':'')+'</p><div class="fm">'+
+(q.t=='parcial'?'<label>Valor pago agora<input id="v'+i+'" type="number" step="0.01" value="'+q.valor+'"></label>':'')+
+(q.t=='dividir'?'<label>Pagamentos<input id="q'+i+'" type="number" min="2" max="12" value="'+q.qtd+'"></label>':'')+
+'<label>'+(q.t=='final'?'Novo vencimento':'Vencimento acordado')+'<input id="d'+i+'" type="date" value="'+q.venc+'"></label></div><small>Para fazer outra condição, altere os campos antes de aceitar.</small><div class="act"><button class="b" data-a="ok" data-i="'+i+'">Aceitar</button><button class="b r2" data-a="no" data-i="'+i+'">Recusar</button></div></div>'});
+if(!pe.length)h+='<p class="emp">Nenhum pedido pendente.</p>';
+if(ok.length)h+='<h3 style="margin:18px 0 10px">Respondidos</h3>'+ok.map(function(q){return'<div class="card"><b>'+e(nm(q.c))+'</b> '+(q.e=='aprovado'?'<span class="tag ok">Aprovado</span>':'<span class="tag late">Recusado</span>')+'<small>'+L[q.t]+'. '+e(q.res)+'</small></div>'}).join('');
+return h}
+function tReg(){return S.h.length?'<div class="card">'+S.h.map(function(x){return'<div class="r" style="margin-top:0"><small style="min-width:78px">'+fd(x.d)+'</small><div class="g" style="flex-basis:220px">'+e(x.t)+'</div></div>'}).join('')+'</div>':'<p class="emp">Nenhum registro ainda.</p>'}
+function loja(){var pe=S.p.filter(function(q){return q.e=='pendente'}).length,
+h='<div class="kp">'+kp('A receber',fm(sum(function(p){return!p.paga})))+kp('Em atraso',fm(sum(function(p){return st(p)=='atrasada'})),'late')+kp('Vencem em até 5 dias',fm(sum(function(p){return st(p)=='breve'})))+kp('Pedidos pendentes',pe)+'</div><div class="tabs">';
+[['carnes','Carnês'],['inad','Inadimplência'],['ped','Pedidos'+(pe?' ('+pe+')':'')],['reg','Registro de acordos']].forEach(function(t){h+='<button data-a="tab" data-v="'+t[0]+'" class="'+(V.tab==t[0]?'on':'')+'">'+t[1]+'</button>'});
+return h+'</div>'+({carnes:tCarnes,inad:tInad,ped:tPed,reg:tReg}[V.tab])()}
+function cliente(){var c=V.cid,h='<h2 class="ti">Olá, '+e(nm(c).split(' ')[0])+'</h2>',ks=S.k.filter(function(k){return k.c==c}),nt='';
+ks.forEach(function(k){k.ps.forEach(function(p){if(!p.paga&&p.lem){var d=diff(p.venc);nt+='<div class="al '+(d<0?'late':'')+'"><b>Lembrete da loja</b>Parcela '+p.l+' de '+e(k.item)+' ('+fm(p.valor)+') '+(d<0?'está atrasada há '+(-d)+' dia(s).':d==0?'vence hoje.':'vence em '+d+' dia(s).')+'</div>'}})});
+h+=nt+(ks.length?'':'<p class="emp">Você ainda não tem carnês.</p>');
+ks.forEach(function(k){h+='<div class="card"><h3>'+e(k.item)+'</h3><small>Em aberto: '+fm(k.ps.reduce(function(a,p){return a+(p.paga?0:p.valor)},0))+'</small>'+k.ps.map(function(p){return row(p,0)}).join('')+'</div>'});
+var mp=S.p.filter(function(q){return q.c==c});
+if(mp.length)h+='<h3 style="margin:18px 0 10px">Meus pedidos</h3>'+mp.map(function(q){return'<div class="card"><b>'+L[q.t]+'</b> '+({pendente:'<span class="tag soon">Aguardando a loja</span>',aprovado:'<span class="tag ok">Aprovado</span>',recusado:'<span class="tag late">Recusado</span>'}[q.e])+'<small>Parcela(s) '+lbl(q)+(q.res?'. '+e(q.res):'')+'</small></div>'}).join('');
+return h}
+function R(){var cl=V.role=='cliente';
+$('#hd').innerHTML='<div class="bar" style="max-width:960px;margin:0 auto"><div class="logo"><i></i>Carnê Claro</div>'+(cl?'<select id="sc" aria-label="Cliente">'+S.c.map(function(c){return'<option value="'+c.id+'"'+(c.id==V.cid?' selected':'')+'>'+e(c.n)+'</option>'}).join('')+'</select>':'')+'<div class="seg"><button data-a="role" data-v="loja" class="'+(cl?'':'on')+'">Sou a loja</button><button data-a="role" data-v="cliente" class="'+(cl?'on':'')+'">Sou cliente</button></div></div>';
+$('#app').innerHTML=cl?cliente():loja()}
+function rem(p,k){p.lem=1;lg('Lembrete enviado a '+nm(k.c)+': parcela '+p.l+' de '+k.item+' ('+(diff(p.venc)<0?'atrasada':'vence em '+fd(p.venc))+')')}
+var A={
+role:function(b){V.role=b.dataset.v;R()},
+tab:function(b){V.tab=b.dataset.v;R()},
+filt:function(b){V.f=b.dataset.v;R()},
+close:closeM,
+reset:function(){if(confirm('Restaurar os dados de exemplo? Tudo o que foi criado será apagado.')){S=seed();sv();R()}},
+paga:function(b){var p=fp(b.dataset.p),k=fk(p.id);p.paga=true;lg('Pagamento registrado: '+nm(k.c)+', parcela '+p.l+' ('+fm(p.valor)+')');sv();R()},
+lem:function(b){var p=fp(b.dataset.p);rem(p,fk(p.id));sv();toast('Lembrete enviado ao cliente.');R()},
+lemall:function(){var n=0;S.k.forEach(function(k){k.ps.forEach(function(p){if(st(p)=='breve'){rem(p,k);n++}})});sv();toast(n?n+' lembrete(s) enviado(s).':'Nenhuma parcela vence nos próximos 5 dias.');R()},
+lemc:function(b){var n=0;S.k.forEach(function(k){if(k.c==b.dataset.c)k.ps.forEach(function(p){if(st(p)=='atrasada'){rem(p,k);n++}})});sv();toast(n+' lembrete(s) enviado(s).');R()},
+novo:function(){M('<h3>Novo carnê</h3><label>Cliente<select id="nc">'+S.c.map(function(c){return'<option value="'+c.id+'">'+e(c.n)+'</option>'}).join('')+'<option value="0">Novo cliente…</option></select></label><label>Nome (se for novo cliente)<input id="nn"></label><label>Produto<input id="ni" placeholder="Ex.: Sofá"></label><label>Valor total (R$)<input id="nt" type="number" min="1" step="0.01" inputmode="decimal"></label><label>Número de parcelas<input id="np" type="number" min="1" max="36" value="6"></label><label>Primeiro vencimento<input id="nv" type="date" value="'+addD(T,30)+'"></label><div class="act"><button class="b" data-a="mk">Criar carnê</button><button class="b o" data-a="close">Cancelar</button></div>')},
+mk:function(){var c=+g('nc'),i=g('ni').trim(),t=+g('nt'),n=+g('np'),v=g('nv'),nn=g('nn').trim();
+if(!i||!(t>0)||!(n>=1)||!v)return toast('Preencha produto, valor, parcelas e vencimento.');
+if(!c){if(!nn)return toast('Informe o nome do cliente.');c=++S.u;S.c.push({id:c,n:nn})}
+S.k.push(mk(S,c,i,t,n,v,0));lg('Carnê criado: '+nm(c)+', '+i+' em '+n+'x');sv();closeM();V.f='todas';R()},
+pedir:function(b){var pid=+b.dataset.p,k=fk(pid),p=fp(pid);V.pp=pid;
+M('<h3>Pedir alternativa</h3><small>Parcela '+p.l+' de '+e(k.item)+' ('+fm(p.valor)+'). A loja avalia e decide: nada é automático.</small><label>Alternativa<select id="t">'+Object.keys(L).map(function(x){return'<option value="'+x+'">'+L[x]+'</option>'}).join('')+'</select></label><label id="fv">Quanto você consegue pagar agora (R$)<input id="v" type="number" min="1" step="0.01" inputmode="decimal"></label><label id="fq">Em quantos pagamentos<select id="q">'+[2,3,4,5,6].map(function(n){return'<option>'+n+'</option>'}).join('')+'</select></label><div id="fs"><label>Parcelas incluídas</label>'+k.ps.filter(function(x){return!x.paga}).map(function(x){return'<label class="ck"><input type="checkbox" name="ps" value="'+x.id+'"'+(x.id==pid?' checked':'')+'>'+x.l+' ('+fm(x.valor)+', vence '+fd(x.venc)+')</label>'}).join('')+'</div><label id="fd">Novo vencimento sugerido<input id="d" type="date" min="'+T+'" value="'+addD(T,15)+'"></label><label>Mensagem para a loja (opcional)<textarea id="mg" rows="2"></textarea></label><div class="act"><button class="b" data-a="send">Enviar pedido</button><button class="b o" data-a="close">Cancelar</button></div>');ft()},
+send:function(){var t=g('t'),pid=+V.pp,k=fk(pid),ps=[pid],v=+g('v',0),n=+g('q',2),d=g('d',T);
+if(t=='varias'){ps=[].slice.call(document.querySelectorAll('[name=ps]:checked')).map(function(x){return+x.value});if(ps.length<2)return toast('Escolha pelo menos duas parcelas.')}
+if(t=='parcial'&&!(v>0&&v<fp(pid).valor))return toast('Informe um valor menor que o da parcela.');
+if(t!='final'&&(!d||d<T))return toast('Informe um vencimento a partir de hoje.');
+S.p.push({id:++S.u,c:k.c,kid:k.id,ps:ps,t:t,valor:v,qtd:n,venc:t=='final'?addM(k.ps[k.ps.length-1].venc,1):d,msg:g('mg','').trim(),e:'pendente'});
+lg('Pedido de '+nm(k.c)+': '+L[t]);sv();closeM();toast('Pedido enviado à loja.');R()},
+no:function(b){var q=S.p.filter(function(x){return x.id==b.dataset.i})[0];q.e='recusado';q.res='A loja recusou o pedido.';lg('Pedido recusado: '+nm(q.c)+', '+L[q.t]);sv();toast('Pedido recusado.');R()},
+ok:function(b){var q=S.p.filter(function(x){return x.id==b.dataset.i})[0],i=q.id,d=g('d'+i,q.venc),v=+g('v'+i,q.valor||0),n=+g('q'+i,q.qtd||0),k=S.k.filter(function(x){return x.id==q.kid})[0],ps=q.ps.map(fp),tx;
+if(!d||d<T)return toast('Informe um vencimento a partir de hoje.');
+if(ps.some(function(p){return!p||p.paga}))return toast('Esta parcela já foi alterada ou paga.');
+if(q.t=='parcial'){var p=ps[0];if(!(v>0&&v<p.valor))return toast('O valor deve ser maior que zero e menor que a parcela.');p.valor=+(p.valor-v).toFixed(2);p.pagoParc=+((p.pagoParc||0)+v).toFixed(2);p.venc=d;tx='Pagamento de '+fm(v)+'; o saldo de '+fm(p.valor)+' vence em '+fd(d)+'.';p.ac=tx}
+else if(q.t=='dividir'){if(!(n>=2))return toast('Use pelo menos 2 pagamentos.');var p0=ps[0],ix=k.ps.indexOf(p0),b0=Math.floor(p0.valor/n*100)/100,np=[];for(var j=0;j<n;j++)np.push({id:++S.u,l:p0.l+' ('+(j+1)+'/'+n+')',valor:j<n-1?b0:+(p0.valor-b0*(n-1)).toFixed(2),venc:addM(d,j),paga:false,ac:'Dividida em '+n+' pagamentos'});k.ps.splice.apply(k.ps,[ix,1].concat(np));tx='Parcela '+p0.l+' dividida em '+n+' pagamentos de cerca de '+fm(b0)+', a partir de '+fd(d)+'.'}
+else{ps.forEach(function(p){p.venc=d;p.ac='Novo vencimento em '+fd(d)});tx='Parcela(s) '+ps.map(function(p){return p.l}).join(', ')+' com novo vencimento em '+fd(d)+'.'}
+q.e='aprovado';q.res=tx;lg('Acordo aprovado com '+nm(q.c)+': '+tx);sv();toast('Acordo registrado.');R()}
+};
+document.addEventListener('click',function(ev){var b=ev.target.closest('[data-a]');if(!b){if(ev.target.id=='m')closeM();return}var f=A[b.dataset.a];if(f)f(b)});
+document.addEventListener('change',function(ev){if(ev.target.id=='sc'){V.cid=+ev.target.value;R()}if(ev.target.id=='t')ft()});
+try{S=JSON.parse(localStorage.getItem(K))}catch(x){}
+if(!S||!S.c)S=seed();
+R();
+</script>
+</body>
+</html>
